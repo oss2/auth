@@ -78,6 +78,25 @@ class Auth extends \Controller
     }
 
     /**
+     * Alias for login
+     */
+    public function postLogin()
+    {
+        return $this->postIndex();
+    }
+
+    public function getLogout()
+    {
+        if( \Auth::check() )
+            $this->log( 'Logout for ' . \Auth::user()->getAuthIdentifier() );
+
+        \Auth::logout();
+        return Response::make('',204);
+    }
+
+
+
+    /**
      * A wrapper to the \Log facade to determine if logged is enabled or disabled
      * in this package.
      *

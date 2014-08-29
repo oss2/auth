@@ -91,6 +91,25 @@ class AuthTest extends Oss2\Auth\Testbench\TestCase
     }
 
     /**
+     * Test a logout call
+     */
+    public function testLogout()
+    {
+        // login first:
+        $response = $this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'testpassword' ] );
+        $this->assertResponseOk(); // 200
+
+        $this->assertFalse( \Auth::guest() );
+        $this->assertTrue( \Auth::check() );
+
+        $response = $this->call( 'GET', 'auth/logout' );
+        $this->assertEquals( 204, $response->getStatusCode() );
+
+        $this->assertTrue( \Auth::guest() );
+        $this->assertFalse( \Auth::check() );
+    }
+
+    /**
      * We rely on Laravel's Auth events in places so ensure they work:
      */
     public function testSuccessfulLoginEvents()
