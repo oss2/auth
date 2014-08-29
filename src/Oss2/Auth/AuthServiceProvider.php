@@ -19,7 +19,7 @@ use Illuminate\Support\ServiceProvider;
 class AuthServiceProvider extends ServiceProvider {
 
 	/** @var bool Indicates if loading of the provider is deferred */
-	protected $defer = false;
+	protected $defer = true;
 
 	/** @var array Configuration from file */
     protected $config = null;
@@ -51,19 +51,16 @@ class AuthServiceProvider extends ServiceProvider {
 
 		// Register our authentication guard
         \Auth::extend( 'oss2/auth', function() {
-            return new \Oss2\Auth\Guard( \App::make('Oss2\Auth\Provider'), \App::make('session.store') );
+            $guard = new \Oss2\Auth\Guard( \App::make('Oss2\Auth\UserProviderInterface'), \App::make('session.store') );
+
+			foreach( \Config::get( 'oss2/auth::extensions', [] ) as $name => $extension )
+				\Auth::addExtension( $name, $extension );
+
+			return $guard;
         });
 
 		if( \Config::get( 'oss2/auth::registerControllerRoute', false ) )
 			\Route::controller( 'auth', 'Oss2\\Auth\\Controller\\Auth' );
-
-		$this->registerExtensions();
-	}
-
-	public function registerExtensions()
-	{
-		foreach( \Config::get( 'oss2/auth::extensions', [] ) as $name => $extension )
-			\Auth::addExtension( $name, $extension );
 	}
 
 	/**
