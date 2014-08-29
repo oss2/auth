@@ -33,7 +33,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         $app = parent::createApplication();
         \Config::set( 'auth.driver', 'oss2/auth' );
 
-        $app->singleton( 'Oss2\Auth\Provider', function(){
+        $app->singleton( 'Oss2\Auth\UserProviderInterface', function(){
             return new \Oss2\Auth\Providers\FixedProvider( [], new \Oss2\Auth\Hashing\PlaintextHasher );
         });
 
@@ -73,7 +73,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         $this->users[0]->email    = 'test@example.com';
         $this->users[0]->setAuthAttempts( 0 );
 
-        \App::make( 'Oss2\Auth\Provider' )->setArray( $this->users );
+        \App::make( 'Oss2\Auth\UserProviderInterface' )->setArray( $this->users );
     }
 
     /**

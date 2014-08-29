@@ -60,8 +60,8 @@ class Guard extends \Illuminate\Auth\Guard
     }
 
 
-    /** @var \Illuminate\Support\Collection Collection of registered authentication extensions */
-    private $extensions;
+    /** @var array Collection of registered authentication extensions */
+    private $extensions = [];
 
     /**
      * Add a new extension with a name and a configuration. The configuration must contain
@@ -78,10 +78,8 @@ class Guard extends \Illuminate\Auth\Guard
      */
     public function addExtension( $name, $config )
     {
-        $this->extensions = \Illuminate\Support\Collection::make( $this->extensions );
-
-        if( $this->extensions->has( $name ) )
-            throw new \Oss2\Auth\Extensions\Exception( 'Cannot load the same extension twice' );
+        if( isset( $this->extensions[ $name ] ) )
+            return $this->extensions;
 
         if( !isset( $config['enabled'] ) || !$config['enabled'] )
             return $this->extensions;
@@ -94,7 +92,8 @@ class Guard extends \Illuminate\Auth\Guard
                 throw new \Oss2\Auth\Extensions\Exception( "To use this auth extension ({$name}), your user class must implement: {$interface}" );
         }
 
-        return $this->extensions->put( $name, new $config['class']( $config ) );
+        $this->extensions[ $name ] = new $config['class']( $config );
+        return $this->extensions;
     }
 
     /**
@@ -103,8 +102,7 @@ class Guard extends \Illuminate\Auth\Guard
      */
     public function getExtension( $name )
     {
-        $this->extensions = \Illuminate\Support\Collection::make( $this->extensions );
-        return $this->extensions->get( $name );
+        return isset( $this->extensions[ $name ] ) ? $this->extensions[ $name ] : null;
     }
 
     /**
