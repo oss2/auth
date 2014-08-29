@@ -1,0 +1,25 @@
+{
+    "name": "oss2/auth",
+    "description": "Laravel authentication with frontend API / pages and enhanced with extensions",
+    "authors": [
+        {
+            "name": "Barry O'Donovan",
+            "email": "barry@opensolutions.ie"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "4.2.*"
+    },
+    "require-dev": {
+        "orchestra/testbench": "2.2.*",
+        "phpunit/phpunit": "4.1.*",
+	"mockery/mockery": "~0.9"
+    },
+    "autoload": {
+        "psr-0": {
+            "Oss2\\Auth": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
