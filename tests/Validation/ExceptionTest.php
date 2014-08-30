@@ -60,7 +60,7 @@ class ExceptionTest extends \Oss2\Auth\Testbench\TestCase {
             '{"p1":["validation.min.string","validation.email"],"p2":["validation.required"]}',
             $this->validator->messages()->toJson()
         );
-
+dd( $this->validator->messages()->getMessages() );
         $e = new Oss2\Auth\Validation\Exception( $this->validator );
         $this->assertEquals( $this->validator->messages()->toJson(), $e->getApiErrors() );
     }
