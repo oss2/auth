@@ -27,6 +27,14 @@ class Auth extends \Controller
     /** @var string The last username for which an autAttempt() was called for */
     private $lastUsername = null;
 
+
+    public function __construct() {
+        App::error( function( \Oss2\Auth\Validation\Exception $exception ) {
+            return Response::json( [ 'errors' => $exception->getApiErrors() ], 422 );
+        });
+    }
+
+
     /**
      * Get credentials from request
      *
@@ -90,7 +98,12 @@ class Auth extends \Controller
      */
     public function postIndex()
     {
-        if( !$this->authAttempt( \Input::all() ) ) {
+        $params = \Input::only( \Config::get( 'oss2/auth::login.paramFilter' ) );
+        $rules  = \Config::get( 'oss2/auth::login.paramRules' );
+        App::make( \Config::get( 'oss2/auth::login.validator', '\Oss2\Auth\Validation\LoginValidator' ), [ $params, $rules ] )
+            ->validate();
+
+        if( !$this->authAttempt( $params ) ) {
             $this->log( 'Failed login for username: ' . $this->lastUsername, 'notice' );
             return $this->sendResponse( Response::make('',403) );
         }
@@ -134,7 +147,7 @@ class Auth extends \Controller
         $token = $this->randomToken( 20 );
 
         $user->authAddToken( 'oss2/auth.password-reset.tokens', $token,
-            strtotime( \Config::get( 'oss2/auth::reset.tokenLifetime', '+2 days' ) ), 
+            strtotime( \Config::get( 'oss2/auth::reset.tokenLifetime', '+2 days' ) ),
             \Config::get( 'oss2/auth::reset.maxTokens', 5 )
         );
 

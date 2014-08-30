@@ -36,6 +36,8 @@ return [
 	|
 	| Names of the parameters that will be queried during a login attempt (or other
 	| API call) using, for example, Auth::attempt()
+	|
+	| **NB:**
 	*/
 	'credentialParamNames' => [
 		'username' => 'username',
@@ -54,6 +56,20 @@ return [
 	*/
 	'log' => true,
 
+
+	/*
+	|--------------------------------------------------------------------------
+	| Login
+	|--------------------------------------------------------------------------
+	|
+	*/
+	'login' => [
+		'paramFilter' => [ 'username', 'password' ],
+		'paramRules'  => [
+			'username' => ['required','min:3']
+		],
+		'validator'   => '\Oss2\Auth\Validation\LoginValidator',
+	],
 
 	/*
   	|--------------------------------------------------------------------------
