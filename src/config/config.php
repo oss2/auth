@@ -66,7 +66,8 @@ return [
 	'login' => [
 		'paramFilter' => [ 'username', 'password' ],
 		'paramRules'  => [
-			'username' => ['required','min:3']
+			'username' => ['required', 'min:5'],
+			'password' => ['required', 'min:8']
 		],
 		'validator'   => '\Oss2\Auth\Validation\DefaultValidator',
 	],
@@ -78,6 +79,10 @@ return [
 	|
 	*/
 	'send-reset-token' => [
+		'paramFilter' => [ 'username' ],
+		'paramRules'  => [
+			'username' => ['required', 'min:5']
+		],
 		// If we receive unknown credentials in a request for a password reset
 		// token, we can return with:
 		//   - 204 -> same response as a valid request, no leakage of user data

@@ -170,4 +170,34 @@ class AuthTest extends Oss2\Auth\Testbench\TestCase
         $this->assertEquals( 403, $response->getStatusCode() );
     }
 
+    /**
+     * Ensure validation is working
+     * @expectedException Oss2\Auth\Validation\Exception
+     */
+    public function testValidation()
+    {
+        \Config::set( 'oss2/auth::login.paramFilter', [ 'username', 'password' ] );
+        \Config::set( 'oss2/auth::login.paramRules', [
+            'username' => ['required', 'min:5'],
+            'password' => ['required', 'min:8']
+        ]);
+
+        $this->call( 'POST', 'auth', [ 'username' => 'a', 'password' => '' ] );
+    }
+
+    /**
+     * Ensure validation is working
+     * @expectedException Oss2\Auth\Validation\Exception
+     */
+    public function testFilter()
+    {
+        \Config::set( 'oss2/auth::login.paramFilter', [ 'nousername', 'password' ] );
+        \Config::set( 'oss2/auth::login.paramRules', [
+            'username' => ['required', 'min:5'],
+            'password' => ['required', 'min:8']
+        ]);
+
+        $this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'testpassword' ] );
+    }
+
 }

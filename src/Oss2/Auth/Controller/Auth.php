@@ -44,7 +44,7 @@ class Auth extends \Controller
      */
     private function filterAndValidateFor( $param )
     {
-        $params = \Input::only( \Config::get( "oss2/auth::{$param}}.paramFilter" ) );
+        $params = \Input::only( \Config::get( "oss2/auth::{$param}.paramFilter" ) );
         $rules  = \Config::get( "oss2/auth::{$param}.paramRules" );
 
         App::make(
@@ -150,11 +150,13 @@ class Auth extends \Controller
 
     public function postSendResetToken()
     {
-        \Event::fire( 'oss2/auth::pre_credentials_lookup', \Input::all() );
-        $user = \Auth::getProvider()->retrieveByCredentials( \Input::all() );
+        $params = $this->filterAndValidateFor( 'send-reset-token' );
+
+        \Event::fire( 'oss2/auth::pre_credentials_lookup', $params );
+        $user = \Auth::getProvider()->retrieveByCredentials( $params );
 
         if( !$user ) {
-            $this->log( '[PASSWORD_RESET_TOKEN] [INVALID_USERNAME] Invalid username requesting password reset token: ' . implode( '|', \Input::all() ) );
+            $this->log( '[PASSWORD_RESET_TOKEN] [INVALID_USERNAME] Invalid username requesting password reset token: ' . implode( '|', $params ) );
             return $this->sendResponse( Response::make('',\Config::get('oss2/auth::send-reset-token.invalidCredentialsResponse', 204)) );
         }
 
