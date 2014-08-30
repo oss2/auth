@@ -150,7 +150,24 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
 
 
     /** @var array Indexed preferences for the user */
-    private $prefs = [];
+    private $tokens = [];
+
+    /**
+     * Tokens accessor - just for testing
+     */
+    public function getTokens()
+    {
+        return $this->tokens;
+    }
+
+    /**
+     * Tokens setter - just for testing
+     */
+    public function setTokens( $t )
+    {
+        $this->tokens = $t;
+    }
+
 
     /**
      * Add an indexed preference to the user.
@@ -166,18 +183,18 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
      */
     public function authAddToken( $name, $token, $expires = 0, $max = 0 )
     {
-        if( !isset( $this->prefs[ $name ] ) )
-            $this->prefs[ $name ] = [];
+        if( !isset( $this->tokens[ $name ] ) )
+            $this->tokens[ $name ] = [];
 
         $this->authExpireTokens( $name );
 
-        if( $max != 0 && count( $this->prefs[ $name ] ) >= $max )
+        if( $max != 0 && count( $this->tokens[ $name ] ) >= $max )
             return false;
 
         if( $expires != 0 && $expires < time() )
             return false;
 
-        $this->prefs[ $name ][] = [
+        $this->tokens[ $name ][] = [
             'value'  => $token,
             'expiry' => $expires
         ];
@@ -190,12 +207,12 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
      */
     public function authExpireTokens( $name )
     {
-        if( !isset( $this->prefs[ $name ] ) )
+        if( !isset( $this->tokens[ $name ] ) )
             return;
 
-        foreach( $this->prefs[ $name ] as $i => $p ) {
+        foreach( $this->tokens[ $name ] as $i => $p ) {
             if( isset( $p['expiry'] ) && $p['expiry'] != 0 && $p['expiry'] < time() )
-                unset( $this->prefs[$i] );
+                unset( $this->tokens[$name][$i] );
         }
     }
 
@@ -210,11 +227,13 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
      */
     public function authGetTokens( $name )
     {
-        if( !isset( $this->prefs[ $name ] ) )
+        if( !isset( $this->tokens[ $name ] ) )
             return [];
 
+        $this->authExpireTokens( $name );
+
         $tokens = [];
-        foreach( $this->prefs[ $name ] as $t )
+        foreach( $this->tokens[ $name ] as $t )
             $tokens[] = $t['value'];
 
         return $tokens;

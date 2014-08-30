@@ -68,6 +68,8 @@ return [
 		//   - 404 -> this leaks the fact that an account does not exist (and,
 		//            hence by the absense of this resposne, that an account exists)
 		'invalidCredentialsResponse' => 204,
+		'maxTokens'                  => 5,         // max reset tokens per user
+		'tokenLifetime'              => '+2 days', // valid strtotime() argument
 	],
 
 

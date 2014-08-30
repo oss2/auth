@@ -132,7 +132,12 @@ class Auth extends \Controller
         $this->log( '[PASSWORD_RESET] [TOKEN_REQUEST] Valid request for password reset token: ' . $user->getAuthIdentifier() );
 
         $token = $this->randomToken( 20 );
-        $user->authAddToken( 'oss2/auth.password-reset.tokens', $token, strtotime( '+2 days' ), 5 );
+
+        $user->authAddToken( 'oss2/auth.password-reset.tokens', $token,
+            strtotime( \Config::get( 'oss2/auth::reset.tokenLifetime', '+2 days' ) ), 
+            \Config::get( 'oss2/auth::reset.maxTokens', 5 )
+        );
+
         return $this->sendResponse( Response::make('',204) );
     }
 
