@@ -108,7 +108,7 @@ class FixedProvider implements \Oss2\Auth\UserProviderInterface
      * Get the name of a individual user class
      * @return string
      */
-    public function getUserClassName()
+    public function authGetUserClassName()
     {
         return '\Oss2\Auth\User\FixedUser';
     }

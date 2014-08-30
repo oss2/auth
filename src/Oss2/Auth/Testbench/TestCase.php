@@ -107,7 +107,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         $this->users[0]->username = 'testusername';
         $this->users[0]->password = 'testpassword';
         $this->users[0]->email    = 'test@example.com';
-        $this->users[0]->setAuthAttempts( 0 );
+        $this->users[0]->authSetAttempts( 0 );
 
         \App::make( 'Oss2\Auth\UserProviderInterface' )->setArray( $this->users );
     }

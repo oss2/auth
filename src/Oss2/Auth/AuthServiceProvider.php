@@ -54,7 +54,7 @@ class AuthServiceProvider extends ServiceProvider {
             $guard = new \Oss2\Auth\Guard( \App::make('Oss2\Auth\UserProviderInterface'), \App::make('session.store') );
 
 			foreach( \Config::get( 'oss2/auth::extensions', [] ) as $name => $extension )
-				$guard->addExtension( $name, $extension );
+				$guard->oss2AddExtension( $name, $extension );
 
 			return $guard;
         });

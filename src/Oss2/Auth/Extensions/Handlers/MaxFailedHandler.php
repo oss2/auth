@@ -37,7 +37,7 @@ class MaxFailedHandler extends Handler
         if( !isset( $data['user'] ) || !is_object( $data['user'] ) )
             return true;
 
-        $attempts = $data['user']->incrementAuthAttempts();
+        $attempts = $data['user']->authIncrementAttempts();
 
         if( $attempts == $this->config['max'] ) {
             \Event::fire( 'oss2/auth.extension.max-failed.locked', [ [ 'user' => $data['user'] ] ] );
@@ -59,15 +59,15 @@ class MaxFailedHandler extends Handler
         if( !isset( $data['user'] ) || !is_object( $data['user'] ) )
             return true;
 
-        if( $data['user']->getAuthAttempts() >= $this->config['max'] ) {
+        if( $data['user']->authGetAttempts() >= $this->config['max'] ) {
             if( \Config::get( 'oss2/auth:log', true ) )
                 \Log::notice( 'Failed login for username: ' . $data['user']->getAuthIdentifier(), ' due to exceeding max failed attempts' );
 
-            \Auth::persist();
+            \Auth::oss2Persist();
             \App::abort(403, 'Unauthorized action.');
         }
 
-        $data['user']->setAuthAttempts( 0 );
+        $data['user']->authSetAttempts( 0 );
         return true;
     }
 
@@ -79,7 +79,7 @@ class MaxFailedHandler extends Handler
        if( !isset( $data['user'] ) || !is_object( $data['user'] ) )
            return true;
 
-       $data['user']->setAuthAttempts( 0 );
+       $data['user']->authSetAttempts( 0 );
        return true;
     }
 }

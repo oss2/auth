@@ -31,7 +31,7 @@ interface UserProviderInterface extends \Illuminate\Auth\UserProviderInterface {
      * Get the name of a individual user class
      * @return string
      */
-    public function getUserClassName();
+    public function authGetUserClassName();
 
 
 }

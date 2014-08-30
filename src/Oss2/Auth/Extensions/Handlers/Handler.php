@@ -21,7 +21,7 @@ abstract class Handler
 
     public function __construct()
     {
-        $this->config = \Auth::getExtension( $this->getExtensionName() )->getConfig();
+        $this->config = \Auth::oss2GetExtension( $this->getExtensionName() )->getConfig();
     }
 
     /**

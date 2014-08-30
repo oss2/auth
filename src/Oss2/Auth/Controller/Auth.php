@@ -70,7 +70,7 @@ class Auth extends \Controller
      */
     private function sendResponse( $response )
     {
-        \Auth::persist();
+        \Auth::oss2Persist();
         return $response;
     }
 
@@ -96,7 +96,7 @@ class Auth extends \Controller
         }
 
         $this->log( 'Login successful for ' . \Auth::user()->getAuthIdentifier() . '/' . $this->lastUsername );
-        return $this->sendResponse( Response::json( \Auth::user()->getAuthResponse() ) );
+        return $this->sendResponse( Response::json( \Auth::user()->authGetResponse() ) );
     }
 
     /**
@@ -111,7 +111,7 @@ class Auth extends \Controller
     {
         if( \Auth::check() ) {
             $this->log( 'Logout for ' . \Auth::user()->getAuthIdentifier() );
-            \Auth::persist();
+            \Auth::oss2Persist();
         }
 
         \Auth::logout();
@@ -132,7 +132,7 @@ class Auth extends \Controller
         $this->log( '[PASSWORD_RESET] [TOKEN_REQUEST] Valid request for password reset token: ' . $user->getAuthIdentifier() );
 
         $token = $this->randomToken( 20 );
-        $user->addAuthToken( 'oss2/auth.password-reset.tokens', $token, strtotime( '+2 days' ), 5 );
+        $user->authAddToken( 'oss2/auth.password-reset.tokens', $token, strtotime( '+2 days' ), 5 );
         return $this->sendResponse( Response::make('',204) );
     }
 

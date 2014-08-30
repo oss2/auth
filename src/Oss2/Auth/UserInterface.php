@@ -32,7 +32,7 @@ interface UserInterface extends \Illuminate\Auth\UserInterface
      *
      * @return array
      */
-    public function getAuthResponse();
+    public function authGetResponse();
 
 
     /**
@@ -50,7 +50,7 @@ interface UserInterface extends \Illuminate\Auth\UserInterface
      * @param int    $max     The maximum number of such preferences
      * @return bool Boolean to indicate if the operation was successful or not.
      */
-    public function addAuthToken( $name, $token, $expires = 0, $max = 0 );
+    public function authAddToken( $name, $token, $expires = 0, $max = 0 );
 
     /**
      * Get an indexed preference for the user.
@@ -61,7 +61,7 @@ interface UserInterface extends \Illuminate\Auth\UserInterface
      * @param string $name    The name of the indexed preference. E.g. `oss2/auth.password-reset.tokens`
      * @return array The indexed preferences
      */
-    public function getAuthTokens( $name );
+    public function authGetTokens( $name );
 
 
 }

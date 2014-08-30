@@ -22,7 +22,7 @@ class MaxFailedTest extends Oss2\Auth\Testbench\TestCase
 
         \Config::set( 'oss2/auth::extensions.maxFailed.enabled',       true );
 
-        \Auth::addExtension( 'maxFailed', \Config::get( 'oss2/auth::extensions.maxFailed' ) );
+        \Auth::oss2AddExtension( 'maxFailed', \Config::get( 'oss2/auth::extensions.maxFailed' ) );
     }
 
     /**
@@ -38,7 +38,7 @@ class MaxFailedTest extends Oss2\Auth\Testbench\TestCase
             $response = $this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
             $this->assertEquals( 403, $response->getStatusCode() );
 
-            $this->assertEquals( $i + 1, $this->getUsers( 0 )->getAuthAttempts() );
+            $this->assertEquals( $i + 1, $this->getUsers( 0 )->authGetAttempts() );
         }
 
         // should not be able to log in with a good password now
@@ -56,16 +56,16 @@ class MaxFailedTest extends Oss2\Auth\Testbench\TestCase
         for( $i = 0; $i < 4; $i++ ) {
             $response = $this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
             $this->assertEquals( 403, $response->getStatusCode() );
-            $this->assertEquals( $i + 1, $this->getUsers( 0 )->getAuthAttempts() );
+            $this->assertEquals( $i + 1, $this->getUsers( 0 )->authGetAttempts() );
         }
 
         // should still be able to log in with a good password now
-        $this->assertEquals( 4, $this->getUsers( 0 )->getAuthAttempts() );
+        $this->assertEquals( 4, $this->getUsers( 0 )->authGetAttempts() );
         $this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'testpassword' ] );
         $this->assertResponseOk(); // 200
 
         // and bad password count should be reset:
-        $this->assertEquals( 0, $this->getUsers( 0 )->getAuthAttempts() );
+        $this->assertEquals( 0, $this->getUsers( 0 )->authGetAttempts() );
     }
 
     /**
@@ -78,11 +78,11 @@ class MaxFailedTest extends Oss2\Auth\Testbench\TestCase
             $response = $this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
             $this->assertEquals( 403, $response->getStatusCode() );
 
-            $this->assertEquals( $i + 1, $this->getUsers( 0 )->getAuthAttempts() );
+            $this->assertEquals( $i + 1, $this->getUsers( 0 )->authGetAttempts() );
         }
 
         // should still be able to log in with a good password now
-        $this->assertEquals( 5, $this->getUsers( 0 )->getAuthAttempts() );
+        $this->assertEquals( 5, $this->getUsers( 0 )->authGetAttempts() );
 
         // should not be able to log in with a good password now
         $this->assertHTTPExceptionStatus( 403, function( $_this ) {

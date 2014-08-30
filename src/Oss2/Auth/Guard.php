@@ -65,7 +65,7 @@ class Guard extends \Illuminate\Auth\Guard
 
 
     /** @var array Collection of registered authentication extensions */
-    private $extensions = [];
+    private $oss2Extensions = [];
 
     /**
      * Add a new extension with a name and a configuration. The configuration must contain
@@ -80,33 +80,33 @@ class Guard extends \Illuminate\Auth\Guard
      * @param array $config
      * @return \Illuminate\Support\Collection
      */
-    public function addExtension( $name, $config )
+    public function oss2AddExtension( $name, $config )
     {
-        if( isset( $this->extensions[ $name ] ) )
-            return $this->extensions;
+        if( isset( $this->oss2Extensions[ $name ] ) )
+            return $this->oss2Extensions;
 
         if( !isset( $config['enabled'] ) || !$config['enabled'] )
-            return $this->extensions;
+            return $this->oss2Extensions;
 
         if( !isset( $config['class'] ) || !class_exists( $config['class'] ) )
             throw new \Oss2\Auth\Extensions\Exception( 'No extension class defined or found for: ' . $name );
 
         foreach( $config['class']::mustImplement() as $interface ) {
-            if( !in_array( $interface, class_implements( $this->provider->getUserClassName() ) ) )
+            if( !in_array( $interface, class_implements( $this->provider->authGetUserClassName() ) ) )
                 throw new \Oss2\Auth\Extensions\Exception( "To use this auth extension ({$name}), your user class must implement: {$interface}" );
         }
 
-        $this->extensions[ $name ] = new $config['class']( $config );
-        return $this->extensions;
+        $this->oss2Extensions[ $name ] = new $config['class']( $config );
+        return $this->oss2Extensions;
     }
 
     /**
      * Get a named extension
      * @return \Oss2\Auth\Extensions\Extension
      */
-    public function getExtension( $name )
+    public function oss2GetExtension( $name )
     {
-        return isset( $this->extensions[ $name ] ) ? $this->extensions[ $name ] : null;
+        return isset( $this->oss2Extensions[ $name ] ) ? $this->oss2Extensions[ $name ] : null;
     }
 
     /**
@@ -114,7 +114,7 @@ class Guard extends \Illuminate\Auth\Guard
      *
      * I.e. do a database UPDATE for example.
      */
-    public function persist()
+    public function oss2Persist()
     {
         if( $this->lastAttempted )
             $this->provider->authPersist( $this->lastAttempted );

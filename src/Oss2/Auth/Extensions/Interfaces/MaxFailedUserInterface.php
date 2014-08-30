@@ -22,7 +22,7 @@ interface MaxFailedUserInterface
      * Return the current counter for sequential failed authentication attempts
      * @return int
      */
-    public function getAuthAttempts();
+    public function authGetAttempts();
 
     /**
      * Set the counter for failed auth attempts.
@@ -32,7 +32,7 @@ interface MaxFailedUserInterface
      *
      * @param int
      */
-    public function setAuthAttempts( $i );
+    public function authSetAttempts( $i );
 
     /**
      * Increment the failed authentication counter.
@@ -41,6 +41,6 @@ interface MaxFailedUserInterface
      *
      * @return int The new auth attempt counter value
      */
-    public function incrementAuthAttempts();
+    public function authIncrementAttempts();
 
 }

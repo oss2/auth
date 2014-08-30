@@ -104,7 +104,7 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
      *
      * @return array
      */
-    public function getAuthResponse()
+    public function authGetResponse()
     {
         return [
             'user' => [
@@ -118,7 +118,7 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
      * Return the current counter for sequential failed authentication attempts
      * @return int
      */
-    public function getAuthAttempts()
+    public function authGetAttempts()
     {
         return $this->authAttempts;
     }
@@ -131,7 +131,7 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
      *
      * @param int
      */
-    public function incrementAuthAttempts()
+    public function authIncrementAttempts()
     {
         return ++$this->authAttempts;
     }
@@ -143,7 +143,7 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
      *
      * @return int The new auth attempt counter value
      */
-    public function setAuthAttempts( $i )
+    public function authSetAttempts( $i )
     {
         $this->authAttempts = $i;
     }
@@ -164,12 +164,12 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
      * @param int    $max     The maximum number of such preferences
      * @return bool Boolean to indicate if the operation was successful or not.
      */
-    public function addAuthToken( $name, $token, $expires = 0, $max = 0 )
+    public function authAddToken( $name, $token, $expires = 0, $max = 0 )
     {
         if( !isset( $this->prefs[ $name ] ) )
             $this->prefs[ $name ] = [];
 
-        $this->expireAuthTokens( $name );
+        $this->authExpireTokens( $name );
 
         if( $max != 0 && count( $this->prefs[ $name ] ) >= $max )
             return false;
@@ -188,7 +188,7 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
     /**
      * Expire a named indexed preference that has expired
      */
-    public function expireAuthTokens( $name )
+    public function authExpireTokens( $name )
     {
         if( !isset( $this->prefs[ $name ] ) )
             return;
@@ -208,7 +208,7 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
      * @param string $name    The name of the indexed preference. E.g. `oss2/auth.password-reset.tokens`
      * @return array The indexed preferences
      */
-    public function getAuthTokens( $name )
+    public function authGetTokens( $name )
     {
         if( !isset( $this->prefs[ $name ] ) )
             return [];

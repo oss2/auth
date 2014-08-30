@@ -63,7 +63,7 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
     {
         $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
         $this->assertEquals( 204, $response->getStatusCode() );
-        $tokens = $this->getUsers( 0 )->getAuthTokens( 'oss2/auth.password-reset.tokens' );
+        $tokens = $this->getUsers( 0 )->authGetTokens( 'oss2/auth.password-reset.tokens' );
         $this->assertTrue( is_array( $tokens ) );
         $this->assertGreaterThan( 0, count( $tokens ) );
         $this->assertTrue( is_string( array_pop( $tokens ) ) );
