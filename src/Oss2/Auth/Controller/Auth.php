@@ -157,11 +157,11 @@ class Auth extends \Controller
         $user = \Auth::getProvider()->retrieveByCredentials( $params );
 
         if( !$user ) {
-            $this->log( '[PASSWORD_RESET_TOKEN] [INVALID_USERNAME] Invalid username requesting password reset token: ' . implode( '|', $params ) );
+            $this->log( 'Send reset token request with invalid username: ' . implode( '|', $params ) );
             return $this->sendResponse( Response::make('',\Config::get('oss2/auth::send-reset-token.invalidCredentialsResponse', 204)) );
         }
 
-        $this->log( '[PASSWORD_RESET] [TOKEN_REQUEST] Valid request for password reset token: ' . $user->getAuthIdentifier() );
+        $this->log( 'Send reset token request with valid credentials for: ' . $user->getAuthIdentifier() );
 
         $token = $this->randomToken( 20 );
 
@@ -170,8 +170,12 @@ class Auth extends \Controller
             \Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 )
         );
 
+        App::make( 'Oss2\Auth\Handlers\SendResetTokenHandler' )->handle( $user, $token, null );
+
         return $this->sendResponse( Response::make('',204) );
     }
+
+    public function getReset() {}
 
     /**
      * Generate a random token (without confusing letters / numbers)

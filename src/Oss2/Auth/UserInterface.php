@@ -63,5 +63,20 @@ interface UserInterface extends \Illuminate\Auth\UserInterface
      */
     public function authGetTokens( $name );
 
+    /**
+     * Get the user's email address so that reset tokens and other communication cab
+     * be sent to him/her.
+     *
+     * @return string
+     */
+    public function authGetEmail();
+
+    /**
+     * Get the user's fullname (can return an empty string if you wish)
+     *
+     * @return string
+     */
+    public function authGetFullname();
+
 
 }

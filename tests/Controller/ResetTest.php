@@ -30,10 +30,10 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
      */
     public function testUnknownUserResponse404()
     {
-        \Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 404 );
+        Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 404 );
         $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'badusername' ] );
         $this->assertEquals( 404, $response->getStatusCode() );
-        \Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 204 );
+        Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 204 );
     }
 
     /**
@@ -43,6 +43,7 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
     {
         $credentials = [ 'username' => 'badusername' ];
         Event::shouldReceive('fire')->once()->with('oss2/auth::pre_credentials_lookup', $credentials );
+        Log::shouldReceive( 'info' )->withAnyArgs();
         $response = $this->call( 'POST', 'auth/send-reset-token', $credentials );
         $this->assertEquals( 204, $response->getStatusCode() );
     }
@@ -53,14 +54,16 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
     public function testValidUserResponse()
     {
         // reset the invalid response to avoid checking that:
-        \Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 404 );
+        Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 404 );
+        Log::shouldReceive( 'info' )->withAnyArgs();
         $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
-        \Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 204 );
+        Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 204 );
         $this->assertEquals( 204, $response->getStatusCode() );
     }
 
     public function testTokenCreation()
     {
+        Log::shouldReceive( 'info' )->withAnyArgs();
         $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
         $this->assertEquals( 204, $response->getStatusCode() );
         $tokens = $this->getUsers( 0 )->authGetTokens( 'oss2/auth.password-reset.tokens' );
@@ -69,10 +72,19 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
         $this->assertTrue( is_string( array_pop( $tokens ) ) );
     }
 
+    public function testTokenSendHandler()
+    {
+        Log::shouldReceive( 'info' )->withAnyArgs();
+        $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
+        $this->assertEquals( 204, $response->getStatusCode() );
+        $tokens = $this->getUsers( 0 )->authGetTokens( 'oss2/auth.password-reset.tokens' );
+    }
+
     public function testExcessiveTokenCreation()
     {
-        for( $i = 0; $i < \Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ) + 1; $i++ ) {
+        for( $i = 0; $i < Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ) + 1; $i++ ) {
             $this->refreshClient();
+            Log::shouldReceive( 'info' )->withAnyArgs();
             $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
         }
 
@@ -81,8 +93,9 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
 
     public function testInexcessiveTokenCreation()
     {
-        for( $i = 0; $i < \Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ) - 1; $i++ ) {
+        for( $i = 0; $i < Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ) - 1; $i++ ) {
             $this->refreshClient();
+            Log::shouldReceive( 'info' )->withAnyArgs();
             $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
         }
 
@@ -93,6 +106,7 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
     {
         for( $i = 0; $i <2; $i++ ) {
             $this->refreshClient();
+            Log::shouldReceive( 'info' )->withAnyArgs();
             $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
         }
 

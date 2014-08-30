@@ -34,6 +34,12 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
     /** @var Email */
     public $email = null;
 
+    /** @var Firstname */
+    public $firstname = null;
+
+    /** @var Surname */
+    public $surname = null;
+
     /** @var AuthAttempts */
     public $authAttempts = 0;
 
@@ -45,7 +51,7 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
 	 */
 	public function getAuthIdentifier()
     {
-        return $this->id;
+        return $this->username;
     }
 
 	/**
@@ -238,5 +244,27 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
 
         return $tokens;
     }
+
+    /**
+     * Get the users email address so that reset tokens and other communication cab
+     * be sent to him/her.
+     *
+     * @return string
+     */
+    public function authGetEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Get the user's fullname (can return an empty string if you wish)
+     *
+     * @return string
+     */
+    public function authGetFullname()
+    {
+        return $this->firstname . ' ' . $this->surname;
+    }
+
 
 }
