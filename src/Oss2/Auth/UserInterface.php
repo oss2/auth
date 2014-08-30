@@ -36,7 +36,7 @@ interface UserInterface extends \Illuminate\Auth\UserInterface
 
 
     /**
-     * Add an indexed preference to the user.
+     * Add an authentication token to the user.
      *
      * We need to store preferences / tokens for some features such as password reset.
      * For this, we need the user entiity to allow the storing of indexed preferences:
@@ -50,7 +50,7 @@ interface UserInterface extends \Illuminate\Auth\UserInterface
      * @param int    $max     The maximum number of such preferences
      * @return bool Boolean to indicate if the operation was successful or not.
      */
-    public function addIndexedPreference( $name, $token, $expires = 0, $max = 0 );
+    public function addAuthToken( $name, $token, $expires = 0, $max = 0 );
 
     /**
      * Get an indexed preference for the user.
@@ -61,7 +61,7 @@ interface UserInterface extends \Illuminate\Auth\UserInterface
      * @param string $name    The name of the indexed preference. E.g. `oss2/auth.password-reset.tokens`
      * @return array The indexed preferences
      */
-    public function getIndexedPreference( $name );
+    public function getAuthTokens( $name );
 
 
 }
