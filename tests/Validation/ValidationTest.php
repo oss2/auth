@@ -21,7 +21,7 @@ class ValidationTest extends \Oss2\Auth\Testbench\TestCase {
     public function setUp()
     {
         parent::setUp();
-        $this->instance = new ValidationTestClass;
+        $this->instance = new Oss2\Auth\Validation\DefaultValidator;
     }
 
 
@@ -69,5 +69,3 @@ class ValidationTest extends \Oss2\Auth\Testbench\TestCase {
         $this->instance->validate();
     }
 }
-
-class ValidationTestClass extends \Oss2\Auth\Validation\Validation{}

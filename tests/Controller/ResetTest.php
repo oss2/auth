@@ -30,10 +30,10 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
      */
     public function testUnknownUserResponse404()
     {
-        \Config::set( 'oss2/auth::reset.invalidCredentialsResponse', 404 );
+        \Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 404 );
         $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'badusername' ] );
         $this->assertEquals( 404, $response->getStatusCode() );
-        \Config::set( 'oss2/auth::reset.invalidCredentialsResponse', 204 );
+        \Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 204 );
     }
 
     /**
@@ -53,9 +53,9 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
     public function testValidUserResponse()
     {
         // reset the invalid response to avoid checking that:
-        \Config::set( 'oss2/auth::reset.invalidCredentialsResponse', 404 );
+        \Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 404 );
         $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
-        \Config::set( 'oss2/auth::reset.invalidCredentialsResponse', 204 );
+        \Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 204 );
         $this->assertEquals( 204, $response->getStatusCode() );
     }
 
@@ -71,22 +71,22 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
 
     public function testExcessiveTokenCreation()
     {
-        for( $i = 0; $i < \Config::get( 'oss2/auth::reset.maxTokens', 5 ) + 1; $i++ ) {
+        for( $i = 0; $i < \Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ) + 1; $i++ ) {
             $this->refreshClient();
             $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
         }
 
-        $this->assertEquals( \Config::get( 'oss2/auth::reset.maxTokens', 5 ), count( $this->getUsers(0)->authGetTokens( 'oss2/auth.password-reset.tokens' ) ) );
+        $this->assertEquals( \Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ), count( $this->getUsers(0)->authGetTokens( 'oss2/auth.password-reset.tokens' ) ) );
     }
 
     public function testInexcessiveTokenCreation()
     {
-        for( $i = 0; $i < \Config::get( 'oss2/auth::reset.maxTokens', 5 ) - 1; $i++ ) {
+        for( $i = 0; $i < \Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ) - 1; $i++ ) {
             $this->refreshClient();
             $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
         }
 
-        $this->assertLessThan( \Config::get( 'oss2/auth::reset.maxTokens', 5 ), count( $this->getUsers(0)->authGetTokens( 'oss2/auth.password-reset.tokens' ) ) );
+        $this->assertLessThan( \Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ), count( $this->getUsers(0)->authGetTokens( 'oss2/auth.password-reset.tokens' ) ) );
     }
 
     public function testExpiredTokens()

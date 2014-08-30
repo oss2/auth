@@ -36,6 +36,25 @@ class Auth extends \Controller
 
 
     /**
+     * Filter the input and validate. Called by each action.
+     *
+     * @param string $action The action (matching the configuration file section)
+     * @return array The filetred and validated parameters
+     * @throws \Oss2\Auth\Validation\Exception
+     */
+    private function filterAndValidateFor( $param )
+    {
+        $params = \Input::only( \Config::get( "oss2/auth::{$param}}.paramFilter" ) );
+        $rules  = \Config::get( "oss2/auth::{$param}.paramRules" );
+
+        App::make(
+                \Config::get( "oss2/auth::{$param}.validator", '\Oss2\Auth\Validation\DefaultValidator' ), [ $params, $rules ]
+            )->validate();
+
+        return $params;
+    }
+
+    /**
      * Get credentials from request
      *
      * We allow a lot of things to be configured. As such, this function resolves
@@ -98,10 +117,7 @@ class Auth extends \Controller
      */
     public function postIndex()
     {
-        $params = \Input::only( \Config::get( 'oss2/auth::login.paramFilter' ) );
-        $rules  = \Config::get( 'oss2/auth::login.paramRules' );
-        App::make( \Config::get( 'oss2/auth::login.validator', '\Oss2\Auth\Validation\LoginValidator' ), [ $params, $rules ] )
-            ->validate();
+        $params = $this->filterAndValidateFor( 'login' );
 
         if( !$this->authAttempt( $params ) ) {
             $this->log( 'Failed login for username: ' . $this->lastUsername, 'notice' );
@@ -139,7 +155,7 @@ class Auth extends \Controller
 
         if( !$user ) {
             $this->log( '[PASSWORD_RESET_TOKEN] [INVALID_USERNAME] Invalid username requesting password reset token: ' . implode( '|', \Input::all() ) );
-            return $this->sendResponse( Response::make('',\Config::get('oss2/auth::reset.invalidCredentialsResponse', 204)) );
+            return $this->sendResponse( Response::make('',\Config::get('oss2/auth::send-reset-token.invalidCredentialsResponse', 204)) );
         }
 
         $this->log( '[PASSWORD_RESET] [TOKEN_REQUEST] Valid request for password reset token: ' . $user->getAuthIdentifier() );
@@ -147,8 +163,8 @@ class Auth extends \Controller
         $token = $this->randomToken( 20 );
 
         $user->authAddToken( 'oss2/auth.password-reset.tokens', $token,
-            strtotime( \Config::get( 'oss2/auth::reset.tokenLifetime', '+2 days' ) ),
-            \Config::get( 'oss2/auth::reset.maxTokens', 5 )
+            strtotime( \Config::get( 'oss2/auth::send-reset-token.tokenLifetime', '+2 days' ) ),
+            \Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 )
         );
 
         return $this->sendResponse( Response::make('',204) );
