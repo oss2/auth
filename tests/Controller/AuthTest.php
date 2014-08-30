@@ -26,10 +26,8 @@ class AuthTest extends Oss2\Auth\Testbench\TestCase
         $this->assertFalse( \Auth::check() );
 
         // good username, bad password
-        $this->assertHTTPExceptionStatus( 403, function( $_this ) {
-            $_this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
-        });
-
+        $response = $this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
+        $this->assertEquals( 403, $response->getStatusCode() );
         $this->assertTrue( \Auth::guest() );
         $this->assertFalse( \Auth::check() );
 
@@ -49,23 +47,20 @@ class AuthTest extends Oss2\Auth\Testbench\TestCase
     public function testFailedLogins()
     {
         // bad username, good password
-        $this->assertHTTPExceptionStatus( 403, function( $_this ) {
-            $_this->call( 'POST', 'auth', [ 'username' => 'badusername', 'password' => 'testpassword' ] );
-        });
+        $response = $this->call( 'POST', 'auth', [ 'username' => 'badusername', 'password' => 'testpassword' ] );
+        $this->assertEquals( 403, $response->getStatusCode() );
         $this->assertTrue( \Auth::guest() );
         $this->assertFalse( \Auth::check() );
 
         // good username, bad password
-        $this->assertHTTPExceptionStatus( 403, function( $_this ) {
-            $_this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
-        });
+        $response = $this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
+        $this->assertEquals( 403, $response->getStatusCode() );
         $this->assertTrue( \Auth::guest() );
         $this->assertFalse( \Auth::check() );
 
         // bad username, bad password
-        $this->assertHTTPExceptionStatus( 403, function( $_this ) {
-            $_this->call( 'POST', 'auth', [ 'username' => 'badusername', 'password' => 'badpassword' ] );
-        });
+        $response = $this->call( 'POST', 'auth', [ 'username' => 'badusername', 'password' => 'badpassword' ] );
+        $this->assertEquals( 403, $response->getStatusCode() );
         $this->assertTrue( \Auth::guest() );
         $this->assertFalse( \Auth::check() );
     }
@@ -89,6 +84,22 @@ class AuthTest extends Oss2\Auth\Testbench\TestCase
         $this->assertFalse( \Auth::guest() );
         $this->assertTrue( \Auth::check() );
     }
+
+    /**
+     * Test a successful login and the various responses
+     */
+    public function testLoginAlias()
+    {
+        $this->assertTrue( \Auth::guest() );
+        $this->assertFalse( \Auth::check() );
+
+        $response = $this->call( 'POST', 'auth/login', [ 'username' => 'testusername', 'password' => 'testpassword' ] );
+        $this->assertResponseOk(); // 200
+
+        $this->assertFalse( \Auth::guest() );
+        $this->assertTrue( \Auth::check() );
+    }
+
 
     /**
      * Test a logout call
@@ -120,6 +131,7 @@ class AuthTest extends Oss2\Auth\Testbench\TestCase
 
         Event::shouldReceive('fire')->once()->with('auth.attempt', $payload );
         Event::shouldReceive('fire')->once()->with('auth.login', [ $this->users[0], false ] );
+        Event::shouldReceive('fire')->once()->with('oss2/auth::pre_credentials_lookup', $credentials );
         Event::shouldReceive('fire')->once()->with('oss2/auth::credentials_retrieved', [ [ 'credentials' => $credentials, 'user' => $this->users[0] ] ] );
         Event::shouldReceive('fire')->once()->with('oss2/auth::credentials_valid', [ [ 'credentials' => $credentials, 'user' => $this->users[0] ] ] );
 
@@ -137,14 +149,12 @@ class AuthTest extends Oss2\Auth\Testbench\TestCase
         $payload = [ $credentials, false, true ];
 
         Event::shouldReceive('fire')->once()->with('auth.attempt', $payload );
+        Event::shouldReceive('fire')->once()->with('oss2/auth::pre_credentials_lookup', $credentials );
         Event::shouldReceive('fire')->once()->with('oss2/auth::credentials_retrieved', [ [ 'credentials' => $credentials, 'user' => $this->users[0] ] ] );
         Event::shouldReceive('fire')->once()->with('oss2/auth::credentials_invalid', [ [ 'credentials' => $credentials, 'user' => $this->users[0] ] ] );
 
-        $this->assertHTTPExceptionStatus( 403, function( $_this, $data ) {
-                $_this->call( 'POST', 'auth', $data['credentials'] );
-            },
-            [ 'credentials' => $credentials ]
-        );
+        $response = $this->call( 'POST', 'auth', $credentials );
+        $this->assertEquals( 403, $response->getStatusCode() );
 
 
         // bad username, bad password
@@ -152,14 +162,12 @@ class AuthTest extends Oss2\Auth\Testbench\TestCase
         $payload = [ $credentials, false, true ];
 
         Event::shouldReceive('fire')->once()->with('auth.attempt', $payload );
+        Event::shouldReceive('fire')->once()->with('oss2/auth::pre_credentials_lookup', $credentials );
         Event::shouldReceive('fire')->once()->with('oss2/auth::credentials_retrieved', [ [ 'credentials' => $credentials, 'user' => null ] ] );
         Event::shouldReceive('fire')->once()->with('oss2/auth::credentials_invalid', [ [ 'credentials' => $credentials, 'user' => null ] ] );
 
-        $this->assertHTTPExceptionStatus( 403, function( $_this, $data ) {
-                $_this->call( 'POST', 'auth', $data['credentials'] );
-            },
-            [ 'credentials' => $credentials ]
-        );
+        $this->call( 'POST', 'auth', $credentials );
+        $this->assertEquals( 403, $response->getStatusCode() );
     }
 
 }

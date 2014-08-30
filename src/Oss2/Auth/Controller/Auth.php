@@ -28,6 +28,28 @@ class Auth extends \Controller
     private $lastUsername = null;
 
     /**
+     * Get credentials from request
+     *
+     * We allow a lot of things to be configured. As such, this function resolves
+     * those options and returns an array
+     *
+     * @return array
+     */
+    private function resolveCredentials( $input )
+    {
+        $inputUsername = Config::get('oss2/auth::inputParamNames.username', 'username' );
+        $inputPassword = Config::get('oss2/auth::inputParamNames.password', 'password' );
+
+        $this->lastUsername = $username = isset( $input[ $inputUsername ] ) ? $input[ $inputUsername ] : null;
+        $password = isset( $input[ $inputPassword ] ) ? $input[ $inputPassword ] : null;
+
+        $credentialUsername = Config::get('oss2/auth::credentialParamNames.username', 'username' );
+        $credentialPassword = Config::get('oss2/auth::credentialParamNames.password', 'password' );
+
+        return [ $credentialUsername => $username, $credentialPassword => $password ];
+    }
+
+    /**
      * Perform an \Auth::attempt()
      *
      * We allow a lot of things to be configured. As such, this function resolves
@@ -37,19 +59,21 @@ class Auth extends \Controller
      */
     private function authAttempt( $input )
     {
-        $inputUsername = Config::get('oss2/auth::inputParamNames.username', 'username' );
-        $inputPassword = Config::get('oss2/auth::inputParamNames.password', 'password' );
         $inputRemember = Config::get('oss2/auth::inputParamNames.remember', 'remember' );
-
-        $this->lastUsername = $username = isset( $input[ $inputUsername ] ) ? $input[ $inputUsername ] : null;
-        $password = isset( $input[ $inputPassword ] ) ? $input[ $inputPassword ] : null;
         $remember = isset( $input[ $inputRemember ] ) ? $input[ $inputRemember ] : false;
 
-        $credentialUsername = Config::get('oss2/auth::credentialParamNames.username', 'username' );
-        $credentialPassword = Config::get('oss2/auth::credentialParamNames.password', 'password' );
-
-        return \Auth::attempt( [ $credentialUsername => $username, $credentialPassword => $password ], $remember, true );
+        return \Auth::attempt( $this->resolveCredentials( $input ), $remember, true );
     }
+
+    /**
+     * Wrapper to ensure we call persist() on a response
+     */
+    private function sendResponse( $response )
+    {
+        \Auth::persist();
+        return $response;
+    }
+
 
     /**
      * Send a login request.
@@ -68,13 +92,11 @@ class Auth extends \Controller
     {
         if( !$this->authAttempt( \Input::all() ) ) {
             $this->log( 'Failed login for username: ' . $this->lastUsername, 'notice' );
-            \Auth::persist();
-            App::abort(403, 'Unauthorized action.');
+            return $this->sendResponse( Response::make('',403) );
         }
 
         $this->log( 'Login successful for ' . \Auth::user()->getAuthIdentifier() . '/' . $this->lastUsername );
-        \Auth::persist();
-        return Response::json( \Auth::user()->getAuthResponse() );
+        return $this->sendResponse( Response::json( \Auth::user()->getAuthResponse() ) );
     }
 
     /**
@@ -87,14 +109,44 @@ class Auth extends \Controller
 
     public function getLogout()
     {
-        if( \Auth::check() )
+        if( \Auth::check() ) {
             $this->log( 'Logout for ' . \Auth::user()->getAuthIdentifier() );
+            \Auth::persist();
+        }
 
         \Auth::logout();
         return Response::make('',204);
     }
 
 
+    public function postSendResetToken()
+    {
+        \Event::fire( 'oss2/auth::pre_credentials_lookup', \Input::all() );
+        $user = \Auth::getProvider()->retrieveByCredentials( \Input::all() );
+
+        if( !$user ) {
+            $this->log( '[PASSWORD_RESET_TOKEN] [INVALID_USERNAME] Invalid username requesting password reset token: ' . implode( '|', \Input::all() ) );
+            return $this->sendResponse( Response::make('',\Config::get('oss2/auth::reset.invalidCredentialsResponse', 204)) );
+        }
+
+        $this->log( '[PASSWORD_RESET] [TOKEN_REQUEST] Valid request for password reset token: ' . $user->getAuthIdentifier() );
+
+        $token = $this->randomToken( 20 );
+        $user->addIndexedPreference( 'oss2/auth.password-reset.tokens', $token, strtotime( '+2 days' ), 4 );
+        return $this->sendResponse( Response::make('',204) );
+    }
+
+    /**
+     * Generate a random token (without confusing letters / numbers)
+     * @param int $len Length of token
+     * @return string The random token
+     */
+    private function randomToken( $len = 20 )
+    {
+        $str = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        $repeat = ceil( ( 1 + ( $len / strlen( $str ) ) ) );
+        return substr( str_shuffle( str_repeat( $str, $repeat ) ), 0, $len );
+    }
 
     /**
      * A wrapper to the \Log facade to determine if logged is enabled or disabled

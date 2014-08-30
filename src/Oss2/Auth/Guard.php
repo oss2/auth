@@ -22,14 +22,16 @@ class Guard extends \Illuminate\Auth\Guard
      *
      * Copied from Laravel but overridden as we want to fire additional events:
      *
+     * * `oss2/auth::pre_credentials_lookup` - fired before we lookup credentials. Primary
+     *       use case is for login / reset throttling.
      * * `oss2/auth::credentials_retrieved` - fired when a called has been made to the user
-     *   provider's `retrieveByCredentials()` method. Passes an array containing the
-     *   original `credentials` and a user object (or null) `user`.
+     *       provider's `retrieveByCredentials()` method. Passes an array containing the
+     *       original `credentials` and a user object (or null) `user`.
      * * `oss2/auth::credentials_valid` - fired if the credentials were valid. As
-     *   `credentials_retrieved` above but will have a user object.
+     *       `credentials_retrieved` above but will have a user object.
      * * `'oss2/auth::credentials_invalid` - first if the credentials were invalid. As
-     *   above but will only have a `user` object if valid search parameters were
-     *   provided (i.e. a valid username).
+     *       above but will only have a `user` object if valid search parameters were
+     *       provided (i.e. a valid username).
      *
      * @param  array  $credentials
      * @param  bool   $remember
@@ -39,6 +41,8 @@ class Guard extends \Illuminate\Auth\Guard
     public function attempt(array $credentials = array(), $remember = false, $login = true)
     {
         $this->fireAttemptEvent($credentials, $remember, $login);
+
+        \Event::fire( 'oss2/auth::pre_credentials_lookup', $credentials );
 
         $this->lastAttempted = $user = $this->provider->retrieveByCredentials($credentials);
 

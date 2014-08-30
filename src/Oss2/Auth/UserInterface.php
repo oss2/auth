@@ -35,6 +35,33 @@ interface UserInterface extends \Illuminate\Auth\UserInterface
     public function getAuthResponse();
 
 
+    /**
+     * Add an indexed preference to the user.
+     *
+     * We need to store preferences / tokens for some features such as password reset.
+     * For this, we need the user entiity to allow the storing of indexed preferences:
+     *
+     * Implementations can decide themselves if they implement expiry and max. Note
+     * that without max you expose yourself to a DOS attack.
+     *
+     * @param string $name    The name of the indexed preference. E.g. `oss2/auth.password-reset.tokens`
+     * @param string $token   The 'item' to store in string representation
+     * @param int    $expires The UNIX timestamp of when this preference should expire.
+     * @param int    $max     The maximum number of such preferences
+     * @return bool Boolean to indicate if the operation was successful or not.
+     */
+    public function addIndexedPreference( $name, $token, $expires = 0, $max = 0 );
+
+    /**
+     * Get an indexed preference for the user.
+     *
+     * We need to store preferences / tokens for some features such as password reset.
+     * For this, we need the user entiity to allow the fetching of indexed preferences:
+     *
+     * @param string $name    The name of the indexed preference. E.g. `oss2/auth.password-reset.tokens`
+     * @return array The indexed preferences
+     */
+    public function getIndexedPreference( $name );
 
 
 }

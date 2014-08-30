@@ -34,10 +34,9 @@ class MaxFailedTest extends Oss2\Auth\Testbench\TestCase
         // extension continues incrementing the count.
 
         for( $i = 0; $i < 8; $i++ ) {
-            $this->assertHTTPExceptionStatus( 403, function( $_this ) {
-                // good username, bad password
-                $_this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
-            });
+            // good username, bad password
+            $response = $this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
+            $this->assertEquals( 403, $response->getStatusCode() );
 
             $this->assertEquals( $i + 1, $this->getUsers( 0 )->getAuthAttempts() );
         }
@@ -55,10 +54,8 @@ class MaxFailedTest extends Oss2\Auth\Testbench\TestCase
     {
         // good username, bad password
         for( $i = 0; $i < 4; $i++ ) {
-            $this->assertHTTPExceptionStatus( 403, function( $_this ) {
-                $_this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
-            });
-
+            $response = $this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
+            $this->assertEquals( 403, $response->getStatusCode() );
             $this->assertEquals( $i + 1, $this->getUsers( 0 )->getAuthAttempts() );
         }
 
@@ -78,9 +75,8 @@ class MaxFailedTest extends Oss2\Auth\Testbench\TestCase
     {
         // good username, bad password - lock the user out
         for( $i = 0; $i < 5; $i++ ) {
-            $this->assertHTTPExceptionStatus( 403, function( $_this ) {
-                $_this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
-            });
+            $response = $this->call( 'POST', 'auth', [ 'username' => 'testusername', 'password' => 'badpassword' ] );
+            $this->assertEquals( 403, $response->getStatusCode() );
 
             $this->assertEquals( $i + 1, $this->getUsers( 0 )->getAuthAttempts() );
         }

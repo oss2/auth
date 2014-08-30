@@ -42,13 +42,49 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return $app;
     }
 
-
     /**
      * Define what service providers this package provides
      */
     protected function getPackageProviders()
     {
         return array('Oss2\Auth\AuthServiceProvider');
+    }
+
+    /**
+     * Refresh the HttpKernel client instance
+     *
+     * ### Origin
+     *
+     * When calling the same action more than once, a HTTP 404 error is generated.
+     * For example, the following code results in the following exception:
+     *
+     * > Symfony\Component\HttpKernel\Exception\NotFoundHttpException: Controller method not found.
+     *
+     * ```php
+     * $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
+     * $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
+     * ```
+     *
+     * Where as the following works:
+     *
+     * ```php
+     * $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
+     * $response = $this->call( 'POST', 'send-reset-token', [ 'username' => 'testusername' ] );
+     * ```
+     *
+     * As I don't want to lose state (fake database backend), the following function resets the
+     * client rather than the whole application allowing the following to succeed:
+     *
+     * ```php
+     * $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
+     * $this->resetClient();
+     * $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
+     * ```
+     *
+     */
+    protected function refreshClient()
+    {
+        $this->client = $this->createClient();
     }
 
 
