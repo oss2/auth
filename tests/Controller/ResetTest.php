@@ -109,4 +109,32 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
     }
 
 
+    /**
+     * Ensure validation is working
+     * @expectedException Oss2\Auth\Validation\Exception
+     */
+    public function testValidation()
+    {
+        \Config::set( 'oss2/auth::send-reset-token.paramFilter', [ 'username' ] );
+        \Config::set( 'oss2/auth::send-reset-token.paramRules', [
+            'username' => ['required', 'min:5']
+        ]);
+
+        $this->call( 'POST', 'auth', [ 'username' => 'a' ] );
+    }
+
+    /**
+     * Ensure validation is working
+     * @expectedException Oss2\Auth\Validation\Exception
+     */
+    public function testFilter()
+    {
+        \Config::set( 'oss2/auth::send-reset-token.paramFilter', [ 'nousername' ] );
+        \Config::set( 'oss2/auth::send-reset-token.paramRules', [
+            'username' => ['required', 'min:5']
+        ]);
+
+        $this->call( 'POST', 'auth', [ 'username' => 'testusername' ] );
+    }
+
 }

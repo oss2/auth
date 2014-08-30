@@ -120,6 +120,7 @@ class Auth extends \Controller
         $params = $this->filterAndValidateFor( 'login' );
 
         if( !$this->authAttempt( $params ) ) {
+            \Event::fire( 'oss2/auth::auth_failed', $params );
             $this->log( 'Failed login for username: ' . $this->lastUsername, 'notice' );
             return $this->sendResponse( Response::make('',403) );
         }

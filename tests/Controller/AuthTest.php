@@ -152,6 +152,7 @@ class AuthTest extends Oss2\Auth\Testbench\TestCase
         Event::shouldReceive('fire')->once()->with('oss2/auth::pre_credentials_lookup', $credentials );
         Event::shouldReceive('fire')->once()->with('oss2/auth::credentials_retrieved', [ [ 'credentials' => $credentials, 'user' => $this->users[0] ] ] );
         Event::shouldReceive('fire')->once()->with('oss2/auth::credentials_invalid', [ [ 'credentials' => $credentials, 'user' => $this->users[0] ] ] );
+        Event::shouldReceive('fire')->once()->with('oss2/auth::auth_failed', $credentials );
 
         $response = $this->call( 'POST', 'auth', $credentials );
         $this->assertEquals( 403, $response->getStatusCode() );
@@ -165,6 +166,7 @@ class AuthTest extends Oss2\Auth\Testbench\TestCase
         Event::shouldReceive('fire')->once()->with('oss2/auth::pre_credentials_lookup', $credentials );
         Event::shouldReceive('fire')->once()->with('oss2/auth::credentials_retrieved', [ [ 'credentials' => $credentials, 'user' => null ] ] );
         Event::shouldReceive('fire')->once()->with('oss2/auth::credentials_invalid', [ [ 'credentials' => $credentials, 'user' => null ] ] );
+        Event::shouldReceive('fire')->once()->with('oss2/auth::auth_failed', $credentials );
 
         $this->call( 'POST', 'auth', $credentials );
         $this->assertEquals( 403, $response->getStatusCode() );
