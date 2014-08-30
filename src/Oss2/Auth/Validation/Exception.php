@@ -10,7 +10,7 @@ class Exception extends \Oss2\Auth\Exception
     }
 
     public function getErrors() {
-        return $this->validator->message();
+        return $this->validator->messages();
     }
 
     public function getApiErrors() {
