@@ -14,6 +14,22 @@ class Exception extends \Oss2\Auth\Exception
     }
 
     public function getApiErrors() {
-        return $this->validator->messages()->toJson();
+        $errors = [];
+        $i = 0;
+        foreach( $this->validator->messages()->getMessages() as $param => $messages ) {
+            $errors[$i] = [];
+            $errors[$i]['id']       = $i;
+            $errors[$i]['type']     = 'validation';
+            $errors[$i]['param']    = $param;
+            $errors[$i]['messages'] = $messages;
+            $i++;
+        }
+
+        return $errors;
+    }
+
+    public function getJsonApiErrors()
+    {
+        return json_encode( [ 'errors' => $this->getApiErrors() ] );
     }
 }
