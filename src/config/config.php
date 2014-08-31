@@ -74,7 +74,7 @@ return [
 
 	/*
   	|--------------------------------------------------------------------------
-   	| Password reset request
+   	| Password reset token request
  	|--------------------------------------------------------------------------
 	|
 	*/
@@ -93,6 +93,24 @@ return [
 		'tokenLifetime'              => '+2 days', // valid strtotime() argument
 	],
 
+
+	/*
+	|--------------------------------------------------------------------------
+	| Password reset
+	|--------------------------------------------------------------------------
+	|
+	*/
+	'reset' => [
+		'paramFilter' => [ 'username', 'token', 'password', 'password_confirmation' ],
+		'paramRules'  => [
+			'username'              => ['required', 'min:5'],
+			'token'                 => ['required', 'min:8'],
+			'password'              => ['required', 'min:8', 'confirmed'],
+			'password_confirmation' => ['required', 'min:8']
+		],
+		'paramsForLookup' => ['username'],
+
+	],
 
 
 

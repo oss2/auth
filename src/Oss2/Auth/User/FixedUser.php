@@ -64,6 +64,16 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
         return $this->password;
     }
 
+    /**
+     * set the password for the user.
+     *
+     * @param string $hashedPassword
+     */
+    public function setAuthPassword( $hashedPassword )
+    {
+        $this->password = $hashedPassword;
+    }
+
 	/**
 	 * Get the token value for the "remember me" session.
 	 *
@@ -209,6 +219,17 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
     }
 
     /**
+     * Clear an indexed preference to the user.
+     *
+     * @param string $name    The name of the indexed preference. E.g. `oss2/auth.password-reset.tokens`
+     */
+    public function authClearTokens( $name )
+    {
+        if( isset( $this->tokens[ $name ] ) )
+            unset( $this->tokens[ $name ] );
+    }
+
+    /**
      * Expire a named indexed preference that has expired
      */
     public function authExpireTokens( $name )
@@ -244,6 +265,27 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
 
         return $tokens;
     }
+
+    /**
+     * Validate a token for the user.
+     *
+     * @param string $name         The name of the indexed preference. E.g. `oss2/auth.password-reset.tokens`
+     * @param string $token        The token
+     * @param bool   $clearIfValid If true (default), clear the tokens if a valid one is presented
+     * @return bool
+     */
+    public function authValidateToken( $name, $token, $clearIfValid = true )
+    {
+        if( in_array( $token, $this->authGetTokens( $name ) ) ) {
+            if( $clearIfValid )
+                $this->authClearTokens( $name );
+
+            return true;
+        }
+
+        return false;
+    }
+
 
     /**
      * Get the users email address so that reset tokens and other communication cab

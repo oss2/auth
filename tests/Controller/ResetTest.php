@@ -14,26 +14,40 @@
  * @package    Oss2\Auth
  * @copyright  Copyright (c) 2014, Open Source Solutions Limited, Dublin, Ireland
  */
-class SendResetTokenTest extends Oss2\Auth\Testbench\TestCase
+class ResetTest extends Oss2\Auth\Testbench\TestCase
 {
-    /**
-     * Test the response for an unknown user
-     */
-    public function testUnknownUserResponse204()
+    private $params;
+
+    public function setUp()
     {
-        $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'badusername' ] );
-        $this->assertEquals( 204, $response->getStatusCode() );
+        parent::setUp();
+
+        // dummy params for testing
+        $this->params = [
+            'username'              => 'testusername',
+            'token'                 => 'qwerty123',
+            'password'              => '12345678',
+            'password_confirmation' => '12345678'
+        ];
     }
 
     /**
      * Test the response for an unknown user
      */
-    public function testUnknownUserResponse404()
+    public function testUnknownUserResponse403()
     {
-        Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 404 );
-        $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'badusername' ] );
-        $this->assertEquals( 404, $response->getStatusCode() );
-        Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 204 );
+        $this->params['username'] = 'badusername';
+        $response = $this->call( 'POST', 'auth/reset', $this->params );
+        $this->assertEquals( 403, $response->getStatusCode() );
+    }
+
+    /**
+     * Test the response for an known user with unknown token
+     */
+    public function testKnownUserUnknownTokenResponse404()
+    {
+        $response = $this->call( 'POST', 'auth/reset', $this->params );
+        $this->assertEquals( 403, $response->getStatusCode() );
     }
 
     /**
@@ -41,22 +55,23 @@ class SendResetTokenTest extends Oss2\Auth\Testbench\TestCase
      */
     public function testCredentialsLookupEventResponse()
     {
-        $credentials = [ 'username' => 'badusername' ];
-        Event::shouldReceive('fire')->once()->with('oss2/auth::pre_credentials_lookup', $credentials );
-        $response = $this->call( 'POST', 'auth/send-reset-token', $credentials );
-        $this->assertEquals( 204, $response->getStatusCode() );
+        $this->params['username'] = 'badusername';
+        Event::shouldReceive('fire')->once()->with('oss2/auth::pre_credentials_lookup', $this->params );
+        $response = $this->call( 'POST', 'auth/reset', $this->params );
+        $this->assertEquals( 403, $response->getStatusCode() );
     }
 
     /**
-     * Test the response for a valid user
+     * Test password reset
      */
-    public function testValidUserResponse()
+    public function testPasswordReset()
     {
-        // reset the invalid response to avoid checking that:
-        Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 404 );
-        $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
-        Config::set( 'oss2/auth::send-reset-token.invalidCredentialsResponse', 204 );
+        // test p/w not equal to new one
+        $this->getUsers(0)->authAddToken( 'oss2/auth.password-reset.tokens', 'qwerty123' );
+        $this->assertFalse( $this->params['password'] == $this->getUsers(0)->getAuthPassword() );
+        $response = $this->call( 'POST', 'auth/reset', $this->params );
         $this->assertEquals( 204, $response->getStatusCode() );
+        $this->assertEquals( $this->params['password'], $this->getUsers(0)->getAuthPassword() );
     }
 
     public function testTokenCreation()
@@ -71,7 +86,7 @@ class SendResetTokenTest extends Oss2\Auth\Testbench\TestCase
 
     /**
      * @expectedException Oss2\Auth\Handlers\TestException
-     */
+     *
     public function testTokenSendHandler()
     {
         App::bind( 'Oss2\Auth\Handlers\SendResetTokenHandler', 'Oss2\Auth\Handlers\TestHandler' );
@@ -115,7 +130,7 @@ class SendResetTokenTest extends Oss2\Auth\Testbench\TestCase
         $this->getUsers(0)->setTokens( $tokens );
 
         $this->assertEquals( 1, count( $this->getUsers(0)->authGetTokens( 'oss2/auth.password-reset.tokens' ) ) );
-    }
+    }*/
 
 
     /**
@@ -124,12 +139,12 @@ class SendResetTokenTest extends Oss2\Auth\Testbench\TestCase
      */
     public function testValidation()
     {
-        \Config::set( 'oss2/auth::send-reset-token.paramFilter', [ 'username' ] );
-        \Config::set( 'oss2/auth::send-reset-token.paramRules', [
+        \Config::set( 'oss2/auth::reset.paramFilter', [ 'username' ] );
+        \Config::set( 'oss2/auth::reset.paramRules', [
             'username' => ['required', 'min:5']
         ]);
 
-        $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'a' ] );
+        $this->call( 'POST', 'auth/reset', [ 'username' => 'a' ] );
     }
 
     /**
@@ -138,12 +153,12 @@ class SendResetTokenTest extends Oss2\Auth\Testbench\TestCase
      */
     public function testFilter()
     {
-        \Config::set( 'oss2/auth::send-reset-token.paramFilter', [ 'nousername' ] );
-        \Config::set( 'oss2/auth::send-reset-token.paramRules', [
+        \Config::set( 'oss2/auth::reset.paramFilter', [ 'nousername' ] );
+        \Config::set( 'oss2/auth::reset.paramRules', [
             'username' => ['required', 'min:5']
         ]);
 
-        $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
+        $this->call( 'POST', 'auth/reset', [ 'username' => 'testusername' ] );
     }
 
 }

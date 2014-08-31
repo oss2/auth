@@ -182,7 +182,7 @@ class Auth extends \Controller
         $params = $this->filterAndValidateFor( 'reset' );
 
         \Event::fire( 'oss2/auth::pre_credentials_lookup', $params );
-        $user = \Auth::getProvider()->retrieveByCredentials( $params );
+        $user = \Auth::getProvider()->retrieveByCredentials( array_intersect_key( $params, array_flip( \Config::get( 'oss2/auth::reset.paramsForLookup' ) ) ) );
 
         if( !$user || !$user->authValidateToken( 'oss2/auth.password-reset.tokens', $params['token'], true ) ) {
             $this->log( 'Reset token request with invalid username / token: ' . implode( '|', $params ) );
@@ -190,11 +190,12 @@ class Auth extends \Controller
         }
 
         $this->log( 'Reset token request with valid credentials for: ' . $user->getAuthIdentifier() );
-        $user->setAuthPassword( $params['password'] );
+        $user->setAuthPassword( \Hash::make( $params['password'] ) );
+        \Auth::oss2Persist(); // persist before handler so the handler **knows** the password was reset
 
         App::make( 'Oss2\Auth\Handlers\ResetHandler' )->handle( $user, [ 'params' => $params ] );
 
-        return $this->sendResponse( Response::make('',204) );
+        return Response::make('',204);
     }
 
     /**

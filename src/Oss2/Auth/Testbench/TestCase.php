@@ -37,6 +37,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
             return new \Oss2\Auth\Providers\FixedProvider( [], new \Oss2\Auth\Hashing\PlaintextHasher );
         });
 
+        $app->bindShared('hash', function() { return new \Oss2\Auth\Hashing\PlaintextHasher; });
+
         \Config::set( 'oss2/auth::log', false );
 
         return $app;
@@ -108,7 +110,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         $this->users[0]->password  = 'testpassword';
         $this->users[0]->email     = 'test@example.com';
         $this->users[0]->firstname = 'John';
-        $this->users[0]->surname   = 'Doe'; 
+        $this->users[0]->surname   = 'Doe';
         $this->users[0]->authSetAttempts( 0 );
 
         \App::make( 'Oss2\Auth\UserProviderInterface' )->setArray( $this->users );

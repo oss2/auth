@@ -18,6 +18,13 @@
 interface UserInterface extends \Illuminate\Auth\UserInterface
 {
     /**
+     * set the password for the user.
+     *
+     * @param string $hashedPassword
+     */
+    public function setAuthPassword( $hashedPassword );
+    
+    /**
      * On a successful login, the controller returns a 200 response with
      * a JSON document. You can use this function to return a custom
      * array. But, at the very least, it MUST return:
@@ -62,6 +69,24 @@ interface UserInterface extends \Illuminate\Auth\UserInterface
      * @return array The indexed preferences
      */
     public function authGetTokens( $name );
+
+
+    /**
+     * Validate a token for the user.
+     *
+     * @param string $name         The name of the indexed preference. E.g. `oss2/auth.password-reset.tokens`
+     * @param string $token        The token
+     * @param bool   $clearIfValid If true (default), clear the tokens if a valid one is presented
+     * @return bool
+     */
+    public function authValidateToken( $name, $token, $clearIfValid = true );
+
+    /**
+     * Clear an indexed preference to the user.
+     *
+     * @param string $name    The name of the indexed preference. E.g. `oss2/auth.password-reset.tokens`
+     */
+    public function authClearTokens( $name );
 
     /**
      * Get the user's email address so that reset tokens and other communication cab

@@ -14,7 +14,7 @@
  * @package    Oss2\Auth
  * @copyright  Copyright (c) 2014, Open Source Solutions Limited, Dublin, Ireland
  */
-class AuthTest extends Oss2\Auth\Testbench\TestCase
+class LoginLogoutTest extends Oss2\Auth\Testbench\TestCase
 {
     /**
      * Basic auth tests (are not logged in before auth and after logout)
