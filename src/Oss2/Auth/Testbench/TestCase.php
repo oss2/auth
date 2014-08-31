@@ -33,11 +33,12 @@ class TestCase extends \Orchestra\Testbench\TestCase
         $app = parent::createApplication();
         \Config::set( 'auth.driver', 'oss2/auth' );
 
+        $app->bindShared('hash', function() { return new \Oss2\Auth\Hashing\PlaintextHasher; });
+
         $app->singleton( 'Oss2\Auth\UserProviderInterface', function(){
-            return new \Oss2\Auth\Providers\FixedProvider( [], new \Oss2\Auth\Hashing\PlaintextHasher );
+            return new \Oss2\Auth\Providers\FixedProvider( [], \Hash::getFacadeRoot() );
         });
 
-        $app->bindShared('hash', function() { return new \Oss2\Auth\Hashing\PlaintextHasher; });
 
         \Config::set( 'oss2/auth::log', false );
 
