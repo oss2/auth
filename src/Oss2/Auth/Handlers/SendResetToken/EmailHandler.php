@@ -16,11 +16,15 @@ class EmailHandler
      *
      *     App::bind( 'Oss2\Auth\Handlers\SendResetTokenHandler', 'Oss2\Auth\Handlers\SendResetToken\EmailHandler' );
      */
-    public function handle( \Oss2\Auth\UserInterface $user, $token, $data = null ) {
+    public function handle( \Oss2\Auth\UserInterface $user, $data = null ) {
         // You could send an email as follows:
-        \Mail::send( 'oss2/auth::send-reset-token.email', [ 'user' => $user, 'token' => $token ], function( $message ) use ( $user ){
-            $message->to( $user->authGetEmail(), $user->authGetFullname() )
-                ->subject( 'Your password reset token' );
-        });
+        \Mail::send(
+            'oss2/auth::send-reset-token.email',
+            [ 'user' => $user, 'token' => $data['token'] ],
+            function( $message ) use ( $user ) {
+                $message->to( $user->authGetEmail(), $user->authGetFullname() )
+                    ->subject( 'Your password reset token' );
+            }
+        );
     }
 }

@@ -7,11 +7,12 @@
  *
  * Commented code below shows how to send an email with an included template.
  */
-class SendResetTokenHandler
+class TestHandler
 {
     /**
-     * Just log the code by default.
      */
     public function handle( \Oss2\Auth\UserInterface $user, $data = null ) {
+        if( \App::runningUnitTests() )
+            throw new \Oss2\Auth\Handlers\TestException( 'Test exception to ensure handler is invoked!' );
     }
 }

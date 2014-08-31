@@ -170,12 +170,32 @@ class Auth extends \Controller
             \Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 )
         );
 
-        App::make( 'Oss2\Auth\Handlers\SendResetTokenHandler' )->handle( $user, $token, null );
+        App::make( 'Oss2\Auth\Handlers\SendResetTokenHandler' )->handle( $user, [ 'token' => $token, 'params' => $params ] );
 
         return $this->sendResponse( Response::make('',204) );
     }
 
-    public function getReset() {}
+    //public function getReset() {}
+
+    public function postReset()
+    {
+        $params = $this->filterAndValidateFor( 'reset' );
+
+        \Event::fire( 'oss2/auth::pre_credentials_lookup', $params );
+        $user = \Auth::getProvider()->retrieveByCredentials( $params );
+
+        if( !$user || !$user->authValidateToken( 'oss2/auth.password-reset.tokens', $params['token'], true ) ) {
+            $this->log( 'Reset token request with invalid username / token: ' . implode( '|', $params ) );
+            return $this->sendResponse( Response::make('',403) );
+        }
+
+        $this->log( 'Reset token request with valid credentials for: ' . $user->getAuthIdentifier() );
+        $user->setAuthPassword( $params['password'] );
+
+        App::make( 'Oss2\Auth\Handlers\ResetHandler' )->handle( $user, [ 'params' => $params ] );
+
+        return $this->sendResponse( Response::make('',204) );
+    }
 
     /**
      * Generate a random token (without confusing letters / numbers)
