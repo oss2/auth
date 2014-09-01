@@ -10,8 +10,8 @@ class TestHandler
 {
     /**
      */
-    public function handle( \Oss2\Auth\UserInterface $user, $data = null ) {
+    public function handle( $user, $data = null ) {
         if( \App::runningUnitTests() )
-            throw new \Oss2\Auth\Handlers\TestException( 'Test exception to ensure handler is invoked!' );
+            throw new \Oss2\Auth\Handlers\TestException( 'Test exception to ensure handler is invoked!', $user, $data );
     }
 }

@@ -17,6 +17,25 @@
 interface UserProviderInterface extends \Illuminate\Auth\UserProviderInterface {
 
     /**
+     * Retrieve a user by the given credentials.
+     *
+     * Note the parameter `$oneOnly` - your code should ensure that sufficient
+     * *credentials* are used to **ensure** a single user result. E.g. unique
+     * index on a username column.
+     *
+     * However, for the `find-usernames` function, you may accept, for example,
+     * an email for which a user has multiple accounts. In this case, call the
+     * function **expecting** an array response.
+     *
+     * If $oneOnly is false, you **must** return an array response (even an empty one)
+     *
+     * @param  array  $credentials
+     * @param  bool   $oneOnly Only return one user (defaults to true)
+     * @return \Oss2\Auth\UserProviderInterface|array|null
+     */
+    public function retrieveByCredentials( array $credentials, $oneOnly = true );
+
+    /**
      * Persist user data to permanent storgae (e.g. save user object to the database).
      *
      * Different extensions may alter / update a user's data. Before the controllor or

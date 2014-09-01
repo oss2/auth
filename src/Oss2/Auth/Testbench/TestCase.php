@@ -114,6 +114,17 @@ class TestCase extends \Orchestra\Testbench\TestCase
         $this->users[0]->surname   = 'Doe';
         $this->users[0]->authSetAttempts( 0 );
 
+        $this->users[1] = new \Oss2\Auth\User\FixedUser;
+        $this->users[1]->id        = '667';
+        $this->users[1]->username  = 'username667';
+        $this->users[1]->email     = '667@example.com';
+
+        $this->users[2] = new \Oss2\Auth\User\FixedUser;
+        $this->users[2]->id        = '668';
+        $this->users[2]->username  = 'username668';
+        $this->users[2]->email     = '667@example.com';
+
+
         \App::make( 'Oss2\Auth\UserProviderInterface' )->setArray( $this->users );
     }
 

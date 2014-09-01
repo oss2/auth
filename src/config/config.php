@@ -113,6 +113,29 @@ return [
 	],
 
 
+	/*
+	|--------------------------------------------------------------------------
+	| Find usernames request
+	|--------------------------------------------------------------------------
+	|
+	| Note that we tend to send the usernames to queried email address and we
+	| do not provide them in the response. We tend to always respond with a
+	| 204 also to not leak information on whether an account exists or not.
+	*/
+	'find-usernames' => [
+		'paramFilter' => [ 'email' ],
+		'paramRules'  => [
+			'email' => ['required', 'email']
+		],
+		// If we receive unknown credentials in a request for usernames, we can
+		// return with:
+		//   - 204 -> same response as a valid request, no leakage of user data
+		//   - 404 -> this leaks the fact that an account does not exist (and,
+		//            hence by the absense of this resposne, that an account exists)
+		'invalidCredentialsResponse' => 204,
+	],
+
+
 
 
 	/*

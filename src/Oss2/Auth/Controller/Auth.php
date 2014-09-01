@@ -198,6 +198,25 @@ class Auth extends \Controller
         return Response::make('',204);
     }
 
+    public function postFindUsernames()
+    {
+        $params = $this->filterAndValidateFor( 'find-usernames' );
+
+        \Event::fire( 'oss2/auth::pre_credentials_lookup', $params );
+        $users = \Auth::getProvider()->retrieveByCredentials( $params, false );   // return an ARRAY of possible users!
+
+        if( !count( $users ) ) {
+            $this->log( 'Find usernames request with no results: ' . implode( '|', $params ) );
+            return $this->sendResponse( Response::make('',\Config::get('oss2/auth::find-usernames.invalidCredentialsResponse', 204)) );
+        }
+
+        $this->log( 'Find usernames request with valid credentials: ' . implode( '|', $params ) );
+
+        App::make( 'Oss2\Auth\Handlers\FindUsernamesHandler' )->handle( null, [ 'users' => $users, 'params' => $params ] );
+
+        return Response::make('',204);
+    }
+
     /**
      * Generate a random token (without confusing letters / numbers)
      * @param int $len Length of token
