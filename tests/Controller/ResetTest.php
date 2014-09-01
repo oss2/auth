@@ -74,63 +74,49 @@ class ResetTest extends Oss2\Auth\Testbench\TestCase
         $this->assertEquals( $this->params['password'], $this->getUsers(0)->getAuthPassword() );
     }
 
-    public function testTokenCreation()
+    /**
+     * Test password reset - multiple tokens
+     */
+    public function testPasswordResetMultipleTokens()
     {
-        $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
+        // test p/w not equal to new one
+        $this->getUsers(0)->authAddToken( 'oss2/auth.password-reset.tokens', 'fwefewfew' );
+        $this->getUsers(0)->authAddToken( 'oss2/auth.password-reset.tokens', 'kuykuykuy' );
+        $this->getUsers(0)->authAddToken( 'oss2/auth.password-reset.tokens', 'qwerty123' );
+        $this->getUsers(0)->authAddToken( 'oss2/auth.password-reset.tokens', 'xcshytjwc' );
+        $this->getUsers(0)->authAddToken( 'oss2/auth.password-reset.tokens', 'cbcbvbvdc' );
+        $this->assertFalse( $this->params['password'] == $this->getUsers(0)->getAuthPassword() );
+        $response = $this->call( 'POST', 'auth/reset', $this->params );
         $this->assertEquals( 204, $response->getStatusCode() );
-        $tokens = $this->getUsers( 0 )->authGetTokens( 'oss2/auth.password-reset.tokens' );
-        $this->assertTrue( is_array( $tokens ) );
-        $this->assertGreaterThan( 0, count( $tokens ) );
-        $this->assertTrue( is_string( array_pop( $tokens ) ) );
+        $this->assertEquals( $this->params['password'], $this->getUsers(0)->getAuthPassword() );
     }
+
+    public function testWithRealTokenCreation()
+    {
+        for( $i = 0; $i < Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ) - 1; $i++ ) {
+            $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
+            $this->refreshClient();
+        }
+
+        $tokens = $this->getUsers(0)->authGetTokens( 'oss2/auth.password-reset.tokens' );
+        $this->params['token'] = array_pop( $tokens );
+        $this->assertFalse( $this->params['password'] == $this->getUsers(0)->getAuthPassword() );
+        $response = $this->call( 'POST', 'auth/reset', $this->params );
+        $this->assertEquals( 204, $response->getStatusCode() );
+        $this->assertEquals( $this->params['password'], $this->getUsers(0)->getAuthPassword() );
+    }
+
 
     /**
      * @expectedException Oss2\Auth\Handlers\TestException
-     *
-    public function testTokenSendHandler()
+     */
+    public function testResetHandler()
     {
-        App::bind( 'Oss2\Auth\Handlers\SendResetTokenHandler', 'Oss2\Auth\Handlers\TestHandler' );
-        $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
+        $this->getUsers(0)->authAddToken( 'oss2/auth.password-reset.tokens', 'qwerty123' );
+        App::bind( 'Oss2\Auth\Handlers\ResetHandler', 'Oss2\Auth\Handlers\TestHandler' );
+        $response = $this->call( 'POST', 'auth/reset', $this->params );
     }
 
-    public function testExcessiveTokenCreation()
-    {
-        for( $i = 0; $i < Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ) + 1; $i++ ) {
-            $this->refreshClient();
-            $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
-        }
-
-        $this->assertEquals( \Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ), count( $this->getUsers(0)->authGetTokens( 'oss2/auth.password-reset.tokens' ) ) );
-    }
-
-    public function testInexcessiveTokenCreation()
-    {
-        for( $i = 0; $i < Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ) - 1; $i++ ) {
-            $this->refreshClient();
-            $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
-        }
-
-        $this->assertLessThan( \Config::get( 'oss2/auth::send-reset-token.maxTokens', 5 ), count( $this->getUsers(0)->authGetTokens( 'oss2/auth.password-reset.tokens' ) ) );
-    }
-
-    public function testExpiredTokens()
-    {
-        for( $i = 0; $i <2; $i++ ) {
-            $this->refreshClient();
-            $response = $this->call( 'POST', 'auth/send-reset-token', [ 'username' => 'testusername' ] );
-        }
-
-        $this->assertEquals( 2, count( $this->getUsers(0)->authGetTokens( 'oss2/auth.password-reset.tokens' ) ) );
-
-        // force expiration of a token:
-        $tokens = $this->getUsers(0)->getTokens();
-        $token = array_pop( $tokens['oss2/auth.password-reset.tokens'] );
-        $token['expiry'] = time() - 1;
-        array_push( $tokens['oss2/auth.password-reset.tokens'], $token );
-        $this->getUsers(0)->setTokens( $tokens );
-
-        $this->assertEquals( 1, count( $this->getUsers(0)->authGetTokens( 'oss2/auth.password-reset.tokens' ) ) );
-    }*/
 
 
     /**

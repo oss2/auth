@@ -1,11 +1,24 @@
 <?php namespace Oss2\Auth\Handlers;
 
 /**
- * Handler to send email reset tokens.
+ * Oss2/Auth
  *
- * Override this to provide your own functionality.
+ * Handler for password reset token requests - e.g. to send by email.
  *
- * Commented code below shows how to send an email with an included template.
+ * Create your own to provide your own functionality and bind as:
+ *
+ * App::bind( 'Oss2\Auth\Handlers\SendResetTokenHandler', 'Your\Namespace\Auth\Handlers\SendResetTokenHandler' );
+ *
+ * Alternativiely, register event listeners.
+ *
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.md.
+ *
+ * @category   Authentication
+ * @package    Oss2\Auth
+ * @copyright  Copyright (c) 2014, Open Source Solutions Limited, Dublin, Ireland
  */
 class SendResetTokenHandler
 {

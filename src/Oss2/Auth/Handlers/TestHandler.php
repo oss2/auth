@@ -1,11 +1,10 @@
 <?php namespace Oss2\Auth\Handlers;
 
 /**
- * Handler to send email reset tokens.
+ * Handler to throw exceptions during testing.
  *
- * Override this to provide your own functionality.
+ * Used to ensures handlers are called.
  *
- * Commented code below shows how to send an email with an included template.
  */
 class TestHandler
 {

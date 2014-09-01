@@ -1,11 +1,22 @@
 <?php namespace Oss2\Auth\Handlers\SendResetToken;
 
 /**
+ * Oss2/Auth
+ *
  * Handler to send email reset tokens.
  *
  * Override this to provide your own functionality.
  *
- * Commented code below shows how to send an email with an included template.
+ * Code below shows how to send an email with an included template.
+ *
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.md.
+ *
+ * @category   Authentication
+ * @package    Oss2\Auth
+ * @copyright  Copyright (c) 2014, Open Source Solutions Limited, Dublin, Ireland
  */
 class EmailHandler
 {
