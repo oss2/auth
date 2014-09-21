@@ -112,6 +112,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         $this->users[0]->email     = 'test@example.com';
         $this->users[0]->firstname = 'John';
         $this->users[0]->surname   = 'Doe';
+        $this->users[0]->twoFA     = '\Oss2\Auth\TwoFactorAuthentication\Dummy';
         $this->users[0]->authSetAttempts( 0 );
 
         $this->users[1] = new \Oss2\Auth\User\FixedUser;

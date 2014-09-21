@@ -70,6 +70,25 @@ return [
 			'password' => ['required', 'min:8']
 		],
 		'validator'   => '\Oss2\Auth\Validation\DefaultValidator',
+		'2fa_enabled' => false, // to allow / check for 2FA per user, set true
+		'2faTokenLifetime'              => '+10 minutes', // valid strtotime() argument
+
+	],
+
+	/*
+	|--------------------------------------------------------------------------
+	| 2FA Login
+	|--------------------------------------------------------------------------
+	|
+	*/
+	'login-2fa' => [
+		'paramFilter' => [ 'username', 'twofatoken', 'token' ],
+		'paramRules'  => [
+			'username'   => ['required', 'min:5'],
+			'twofatoken' => ['required', 'min:10'],
+			'token'      => ['required']
+		],
+		'paramsForLookup' => ['username'],
 	],
 
 	/*

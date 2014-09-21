@@ -43,6 +43,9 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
     /** @var AuthAttempts */
     public $authAttempts = 0;
 
+    /** @var 2FA */
+    public $twoFA = false;
+
 
 	/**
 	 * Get the unique identifier for the user.
@@ -306,6 +309,18 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
     public function authGetFullname()
     {
         return $this->firstname . ' ' . $this->surname;
+    }
+
+    /**
+     * Check if the user has two-factor authentication (2FA) enabled.
+     *
+     * Returns with false for no 2FA, otherwise the 2FA handler name
+     *
+     * @return string|bool
+     */
+    public function authGet2FA()
+    {
+        return $this->twoFA;
     }
 
 
