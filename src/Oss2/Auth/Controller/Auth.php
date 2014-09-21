@@ -42,13 +42,13 @@ class Auth extends \Controller
      * @return array The filetred and validated parameters
      * @throws \Oss2\Auth\Validation\Exception
      */
-    private function filterAndValidateFor( $param )
+    private function filterAndValidateFor( $action )
     {
-        $params = \Input::only( \Config::get( "oss2/auth::{$param}.paramFilter" ) );
-        $rules  = \Config::get( "oss2/auth::{$param}.paramRules" );
+        $params = \Input::only( \Config::get( "oss2/auth::{$action}.paramFilter" ) );
+        $rules  = \Config::get( "oss2/auth::{$action}.paramRules" );
 
         App::make(
-                \Config::get( "oss2/auth::{$param}.validator", '\Oss2\Auth\Validation\DefaultValidator' ), [ $params, $rules ]
+                \Config::get( "oss2/auth::{$action}.validator", '\Oss2\Auth\Validation\DefaultValidator' ), [ $params, $rules ]
             )->validate();
 
         return $params;
