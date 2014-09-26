@@ -17,7 +17,8 @@
  * @package    Oss2\Auth
  * @copyright  Copyright (c) 2014, Open Source Solutions Limited, Dublin, Ireland
  */
-class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Interfaces\MaxFailedUserInterface
+class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Interfaces\MaxFailedUserInterface,
+        \Oss2\Auth\UserApiKeyInterface
 {
     /** @var Unique identifier */
     public $id = null;
@@ -322,6 +323,23 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
     {
         return $this->twoFA;
     }
+
+
+    /** API Keys for this user */
+    public $apikeys = [];
+
+    /**
+     * Create an API key
+     *
+     * @param int $expires Seconds from now for when this key should expire
+     * @param array $allowed_ips Allowed IP addresses
+     * @param array $allowed_routes Routes that this API key is allowed to access
+     * @return \Oss2\Auth\ApiKeyInterface
+     */
+    public function apiKeyCreate( $expires = null, $allowed_ips = null, $allowed_routes = null )
+    {}
+
+
 
 
 }
