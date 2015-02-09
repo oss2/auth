@@ -17,7 +17,10 @@
  * @package    Oss2\Auth
  * @copyright  Copyright (c) 2014, Open Source Solutions Limited, Dublin, Ireland
  */
-class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Interfaces\MaxFailedUserInterface
+class FixedUser implements
+            \Oss2\Auth\UserInterface,
+            \Oss2\Auth\Extensions\Interfaces\MaxFailedUserInterface,
+            \Oss2\Auth\Extensions\Interfaces\TwoFactorUserInterface
 {
     /** @var Unique identifier */
     public $id = null;
@@ -43,6 +46,23 @@ class FixedUser implements \Oss2\Auth\UserInterface, \Oss2\Auth\Extensions\Inter
     /** @var AuthAttempts */
     public $authAttempts = 0;
 
+
+    /** @var two factor authentication */
+    public $twofa = false;
+
+    /** 2fa fallback */
+    public $twofaFallback = false;
+
+
+    /**
+     * Is 2fa enabled?
+     *
+     * return bool
+     */
+    public function auth2faEnabled()
+    {
+        return $this->twofa != null;
+    }
 
 	/**
 	 * Get the unique identifier for the user.

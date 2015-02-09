@@ -14,7 +14,7 @@
  * @package    Oss2\Auth
  * @copyright  Copyright (c) 2014, Open Source Solutions Limited, Dublin, Ireland
  */
-class MaxFailedHandler extends Handler
+class TwoFactorHandler extends Handler
 {
     /**
      * Get the name of the extension
@@ -23,27 +23,7 @@ class MaxFailedHandler extends Handler
      */
     public function getExtensionName()
     {
-        return 'maxFailed';
-    }
-
-    /**
-     * Increment the failed attempts counter.
-     *
-     * Also fires a `oss2/auth.extension.max-failed.locked` event which could be
-     * used, for example, to alert the user by email that their account was locked.
-     */
-    public function handleCredentialsInvalid( $data )
-    {
-        if( !isset( $data['user'] ) || !is_object( $data['user'] ) )
-            return true;
-
-        $attempts = $data['user']->authIncrementAttempts();
-
-        if( $attempts == $this->config['max'] ) {
-            \Event::fire( 'oss2/auth.extension.max-failed.locked', [ [ 'user' => $data['user'] ] ] );
-        }
-
-        return true;
+        return '2fa';
     }
 
     /**
@@ -56,9 +36,22 @@ class MaxFailedHandler extends Handler
      */
     public function handleCredentialsValid( $data )
     {
-        if( !isset( $data['user'] ) || !is_object( $data['user'] ) )
-            return true;
+        if( !$this->config['alwaysRequired'] && !$data['user']->auth2faEnabled() ) // fix for users 2fa status
+        {
+            // 2fa neither enabled for the user nor globally
+            return;
+        }
 
+        header( 'X-GitHub-OTP', 'required; xx' );
+        \App::abort(401, 'Two Factor Authentication Enabled');
+        if( !( $header2fa = \Request::header( 'X-GitHub-OTP', false ) ) )
+        {
+            header( 'X-GitHub-OTP', 'required; ' );
+            \App::abort(401, 'Two Factor Authentication Enabled');
+        }
+
+
+        \App::abort(403, 'Unauthorized action.');
         if( $data['user']->authGetAttempts() >= $this->config['max'] ) {
             if( \Config::get( 'oss2/auth:log', true ) )
                 \Log::notice( 'Failed login for username: ' . $data['user']->getAuthIdentifier(), ' due to exceeding max failed attempts' );
@@ -69,17 +62,5 @@ class MaxFailedHandler extends Handler
 
         $data['user']->authSetAttempts( 0 );
         return true;
-    }
-
-    /**
-     * Handle the password reset event to set the counter to zero
-     */
-    public function handlePasswordReset( $data )
-    {
-       if( !isset( $data['user'] ) || !is_object( $data['user'] ) )
-           return true;
-
-       $data['user']->authSetAttempts( 0 );
-       return true;
     }
 }

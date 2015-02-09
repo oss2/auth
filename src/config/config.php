@@ -168,7 +168,29 @@ return [
 			'valid_function'      => 'handleCredentialsValid',
 			'reset_function'      => 'handlePasswordReset',
 			'max'                 => 5
-		]
+		],
+
+
+		/*
+		|--------------------------------------------------------------------------
+		| Two Factor Authentication (2fa)
+		|--------------------------------------------------------------------------
+		|
+		|
+		|
+		*/
+		'2fa' => [
+
+			'enabled'             => false,
+			'alwaysRequired'      => false,  // set to true to ALWAYS require 2fa
+			'alwaysHandler'       => 'simple',
+			'alwaysFallback'      => 'sms',
+			'class'               => '\\Oss2\\Auth\\Extensions\\TwoFactor',
+			'handler'             => '\\Oss2\\Auth\\Extensions\\Handlers\\TwoFactorHandler',
+			'valid_function'      => 'handleCredentialsValid',
+			'max'                 => 5
+		],
+
 
 		/*
 		|--------------------------------------------------------------------------
