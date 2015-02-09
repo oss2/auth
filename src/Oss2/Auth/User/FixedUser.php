@@ -46,6 +46,9 @@ class FixedUser implements
     /** @var AuthAttempts */
     public $authAttempts = 0;
 
+    /** @var 2FA */
+    public $twoFA = false;
+
 
     /** @var two factor authentication */
     public $twofa = false;
@@ -327,6 +330,35 @@ class FixedUser implements
     {
         return $this->firstname . ' ' . $this->surname;
     }
+
+    /**
+     * Check if the user has two-factor authentication (2FA) enabled.
+     *
+     * Returns with false for no 2FA, otherwise the 2FA handler name
+     *
+     * @return string|bool
+     */
+    public function authGet2FA()
+    {
+        return $this->twoFA;
+    }
+
+
+    /** API Keys for this user */
+    public $apikeys = [];
+
+    /**
+     * Create an API key
+     *
+     * @param int $expires Seconds from now for when this key should expire
+     * @param array $allowed_ips Allowed IP addresses
+     * @param array $allowed_routes Routes that this API key is allowed to access
+     * @return \Oss2\Auth\ApiKeyInterface
+     */
+    public function apiKeyCreate( $expires = null, $allowed_ips = null, $allowed_routes = null )
+    {}
+
+
 
 
 }

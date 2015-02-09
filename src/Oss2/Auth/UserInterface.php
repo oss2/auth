@@ -23,7 +23,7 @@ interface UserInterface extends \Illuminate\Auth\UserInterface
      * @param string $hashedPassword
      */
     public function setAuthPassword( $hashedPassword );
-    
+
     /**
      * On a successful login, the controller returns a 200 response with
      * a JSON document. You can use this function to return a custom
@@ -102,6 +102,16 @@ interface UserInterface extends \Illuminate\Auth\UserInterface
      * @return string
      */
     public function authGetFullname();
+
+
+    /**
+     * Check if the user has two-factor authentication (2FA) enabled.
+     *
+     * Returns with false for no 2FA, otherwise the 2FA handler name
+     *
+     * @return string|bool
+     */
+    public function authGet2FA();
 
 
 }
